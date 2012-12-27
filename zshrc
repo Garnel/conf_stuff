@@ -1,0 +1,235 @@
+#################### color ############################
+autoload colors 
+colors
+
+for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
+    eval _$color='%{$terminfo[bold]$fg[${(L)color}]%}'
+    eval $color='%{$fg[${(L)color}]%}'
+    (( count = $count + 1 ))
+done
+FINISH="%{$terminfo[sgr0]%}"
+
+#prompt
+RPROMPT=$(echo "$RED%D %T$FINISH")
+PROMPT=$(echo "$CYAN%n@$GREEN%m.db01:$_RED%/$_YELLOW ]\$$FINISH ")
+
+#PROMPT=$(echo "$BLUE%M$GREEN%/
+#$CYAN%n@$BLUE%M:$GREEN%/$_YELLOW>>>$FINISH ")
+
+#################### history ##########################
+#history size
+export HISTSIZE=10000
+
+#history size saved after logged out
+export SAVEHIST=10000
+
+#history file
+export HISTFILE=~/.zhistory
+
+#append to history file
+setopt INC_APPEND_HISTORY
+
+#ignore duplicate commands
+setopt HIST_IGNORE_DUPS      
+
+#add time stamp for command in history
+setopt EXTENDED_HISTORY      
+
+#history for 'cd', usage: 'cd -[TAB]'
+setopt AUTO_PUSHD
+
+#ignore duplicate commands
+setopt PUSHD_IGNORE_DUPS
+
+#ignore command start with spaces
+setopt HIST_IGNORE_SPACE
+
+#################### key binding ######################
+#run zsh in vi mode (vs emacs mode)
+bindkey -v  #emacs mode: bindkey -e
+
+#bash-style
+#Ctrl+P: prev history, Ctrl+N: next history
+bindkey "^P" vi-up-line-or-history
+bindkey "^N" vi-down-line-or-history
+
+#Ctrl+A: beginning of line, Ctrl+E: end of line
+bindkey "^E" vi-beginning-of-line
+bindkey "^A" vi-end-of-line
+
+bindkey "^[[1~" vi-beginning-of-line  	# Home
+bindkey "^[[4~" vi-end-of-line        	# End
+bindkey '^[[2~' beep                  	# Insert
+bindkey '^[[3~' delete-char           	# Del
+bindkey '^[[5~' vi-backward-blank-word	# Page Up
+bindkey '^[[6~' vi-forward-blank-word 	# Page Down
+
+#################### completion #######################
+setopt AUTO_LIST
+setopt AUTO_MENU
+
+autoload -U compinit
+compinit
+
+#cache
+#zstyle ':completion::complete:*' use-cache on
+#zstyle ':completion::complete:*' cache-path .zcache
+#zstyle ':completion:*:cd:*' ignore-parents parent pwd
+
+#options
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*' menu select
+zstyle ':completion:*:*:default' force-list always
+zstyle ':completion:*' select-prompt '%SSelect:  lines: %L  matches: %M  [%p]'
+
+zstyle ':completion:*:match:*' original only
+zstyle ':completion::prefix-1:*' completer _complete
+zstyle ':completion:predict:*' completer _complete
+zstyle ':completion:incremental:*' completer _complete _correct
+zstyle ':completion:*' completer _complete _prefix _correct _prefix _match _approximate
+
+#path completion
+zstyle ':completion:*' expand 'yes'
+zstyle ':completion:*' squeeze-shlashes 'yes'
+zstyle ':completion::complete:*' '\\'
+
+#colorful menu
+eval $(dircolors -b) 
+export ZLSCOLORS="${LS_COLORS}"
+zmodload zsh/complist
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+
+#case insensitivity
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
+
+#correct errors      
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:match:*' original only
+zstyle ':completion:*:approximate:*' max-errors 1 numeric
+
+#completion for kill    
+compdef pkill=kill
+compdef pkill=killall
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:*:*:*:processes' force-list always
+zstyle ':completion:*:processes' command 'ps -au$USER'
+
+#prompt groups in completion
+zstyle ':completion:*:matches' group 'yes'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:options' description 'yes'
+zstyle ':completion:*:options' auto-description '%d'
+zstyle ':completion:*:descriptions' format $'\e[01;33m -- %d --\e[0m'
+zstyle ':completion:*:messages' format $'\e[01;35m -- %d --\e[0m'
+zstyle ':completion:*:warnings' format $'\e[01;31m -- No Matches Found --\e[0m'
+zstyle ':completion:*:corrections' format $'\e[01;32m -- %d (errors: %e) --\e[0m'
+
+#orders for 'cd ~'
+zstyle ':completion:*:-tilde-:*' group-order 'named-directories' 'path-directories'\
+ 'users' 'expand'
+
+#expand path
+#/v/c/p/p => /var/cache/pacman/pkg
+setopt complete_in_word
+
+##complete command as 'cd ' when cursor in beginning of a empty line
+user-complete(){
+    case $BUFFER in
+        "" )                       #empty line: "cd "
+            BUFFER="cd "
+            zle end-of-line
+            zle expand-or-complete
+            ;;
+        "cd --" )                  # "cd --" => "cd +"
+            BUFFER="cd +"
+            zle end-of-line
+            zle expand-or-complete
+            ;;
+        "cd +-" )                  # "cd +-" => "cd -"
+            BUFFER="cd -"
+            zle end-of-line
+            zle expand-or-complete
+            ;;
+        * )
+            zle expand-or-complete
+            ;;
+    esac
+}
+zle -N user-complete
+bindkey "\t" user-complete
+
+# custom completion
+# for ping
+zstyle ':completion:*:ping:*' hosts 192.168.128.1{38,} www.g.cn www.baidu.com\
+    192.168.{1,0}.1{{7..9},}
+
+# for ssh scp sftp ...
+my_accounts=(
+    {wiki}@{db-testing-wiki09.db01.baidu.com,db-testing-wiki08.db01.baidu.com}
+)
+zstyle ':completion:*:my-accounts' users-hosts $my_accounts
+
+#################### hilight char #####################
+# Ctrl+@ set marker
+# region: between marker and current cursor
+zle_highlight=(region:bg=magenta    #chosen arean
+special:bold                        #special charactors
+isearch:underline)                  #key words in searching
+
+#################### alias ############################
+alias ls='ls --color=auto'
+alias ll='ls -l'
+alias vi="vim"
+alias grep='grep --color=tty'
+
+# User specific aliases and functions
+alias p='pstree wiki|grep -v ^$'
+alias tf='tail -f'
+# alias db='/home/work/mysql/bin/mysql -uorp -P6000 -h127.0.0.1'
+
+# top 10 history
+alias top10='print -l  ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
+
+# path aliases
+# usage: cd ~xxx
+hash -d cc="/home/garnel/cclite/"
+
+#################### extra ############################
+export EDITOR="vim"
+
+#allow comment in command
+#usage: cmd  #I'm a comment
+setopt INTERACTIVE_COMMENTS      
+
+#those chars are considered as part of words
+WORDCHARS='*?_-[]~=&;!#$%^(){}<>'
+
+#insert sudo before the command
+sudo-command-line() {
+    [[ -z $BUFFER ]] && zle up-history
+    [[ $BUFFER != sudo\ * ]] && BUFFER="sudo $BUFFER"
+    zle end-of-line                 #move cursor to the end of line
+}
+zle -N sudo-command-line
+#short-key: [Esc] [Esc]
+bindkey "\e\e" sudo-command-line
+
+# F1 calculators
+arith-eval-echo() {
+    LBUFFER="${LBUFFER}echo \$(( "
+    RBUFFER=" ))$RBUFFER"
+}
+zle -N arith-eval-echo
+bindkey "[[A" arith-eval-echo
+
+zmodload zsh/mathfunc
+autoload -U zsh-mime-setup
+zsh-mime-setup
+setopt EXTENDED_GLOB
+
+setopt correctall
+autoload compinstall
+
+#################### git ##############################
+#todo~
