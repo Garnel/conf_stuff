@@ -1,3 +1,20 @@
+#################### aliases ##########################
+alias ls='ls --color=auto'
+alias ll='ls -l'
+alias vi="vim"
+alias grep='grep --color=tty'
+
+# User specific aliases and functions
+alias tf='tail -f'
+# alias db='/home/work/mysql/bin/mysql -uroot -P3306 -h127.0.0.1'
+
+# top 10 history
+alias top10='print -l  ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
+
+# path aliases
+# usage: cd ~xxx
+hash -d cc="/home/garnel/cclite/"
+
 #################### color ############################
 autoload colors 
 colors
@@ -54,8 +71,8 @@ bindkey "^P" vi-up-line-or-history
 bindkey "^N" vi-down-line-or-history
 
 #Ctrl+A: beginning of line, Ctrl+E: end of line
-bindkey "^E" vi-beginning-of-line
-bindkey "^A" vi-end-of-line
+bindkey "^A" vi-beginning-of-line
+bindkey "^E" vi-end-of-line
 
 bindkey "^[[1~" vi-beginning-of-line  	# Home
 bindkey "^[[4~" vi-end-of-line        	# End
@@ -176,24 +193,6 @@ zstyle ':completion:*:my-accounts' users-hosts $my_accounts
 zle_highlight=(region:bg=magenta    #chosen arean
 special:bold                        #special charactors
 isearch:underline)                  #key words in searching
-
-#################### alias ############################
-alias ls='ls --color=auto'
-alias ll='ls -l'
-alias vi="vim"
-alias grep='grep --color=tty'
-
-# User specific aliases and functions
-alias p='pstree wiki|grep -v ^$'
-alias tf='tail -f'
-# alias db='/home/work/mysql/bin/mysql -uorp -P6000 -h127.0.0.1'
-
-# top 10 history
-alias top10='print -l  ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
-
-# path aliases
-# usage: cd ~xxx
-hash -d cc="/home/garnel/cclite/"
 
 #################### extra ############################
 export EDITOR="vim"
