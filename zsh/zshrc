@@ -1,6 +1,7 @@
 #################### aliases ##########################
 alias ls='ls --color=auto'
 alias ll='ls -l'
+alias lls='ls'
 alias vi="vim"
 alias grep='grep --color=tty'
 
@@ -13,7 +14,7 @@ alias top10='print -l  ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
 
 # path aliases
 # usage: cd ~xxx
-hash -d cc="/home/garnel/cclite/"
+hash -d cc="/home/garnel/c/cclite/"
 
 #################### color ############################
 autoload colors 
@@ -28,7 +29,7 @@ FINISH="%{$terminfo[sgr0]%}"
 
 #prompt
 RPROMPT=$(echo "$RED%D %T$FINISH")
-PROMPT=$(echo "$CYAN%n@$GREEN%m.db01:$_RED%/$_YELLOW ]\$$FINISH ")
+PROMPT=$(echo "$CYAN%n@$GREEN%m:$_RED%/$_YELLOW ]\$$FINISH ")
 
 #PROMPT=$(echo "$BLUE%M$GREEN%/
 #$CYAN%n@$BLUE%M:$GREEN%/$_YELLOW>>>$FINISH ")
