@@ -1,6 +1,18 @@
 " This is a template vimrc by Garnel
 " 2012-12-30
 
+"""""""""""""""""""" READE ME """""""""""""""""""""""""
+" $HOME is used in many places of this file, Linux will set it automaticly
+" when your account is created, if you are in windows, you should set a 
+" environment varible named HOME. Actully, the HOME can be set to anywhere 
+" you like, but we generally set it to your home directory. For example:
+" "C:\Users\Garnel".
+" Pakages installed:
+"   plugins:
+"       DoxygenToolkit
+"   themes:
+"       solarized
+
 """""""""""""""""""" Global vars, funcs """""""""""""""
 " Is windows or not
 if (has("win32") || has("win95") || has("win64") || has("win16"))
@@ -16,21 +28,18 @@ else
     let g:hastab = 1
 endif
 
-"Open in a new buffer or vsplit(version < 7.0, no tab)
+" Open a file in a new buffer or vsplit(version < 7.0, no tab)
 function! OpenNew(filename)
     "get fullfile name by replacing beginning "~/" to "$HOME/"
-    "If you are in windows, set a environment varible HOME to where you put _vimrc
-    "Generally speaking, '~' stands fo home directory, so I recommend you set it
-    "to your home directory too, such as "C:\Users\Garnel"
-    let l:fullfn = substitute(a:filename, "^\\~/", $HOME . "/", "")
+    let fullfn = substitute(a:filename, "^\\~/", $HOME . "/", "")
     
-    if g:hastab == 0 "version lower than 7.0
-        exec "vsplite " . l:fullfn
+    if g:hastab == 0    "version lower than 7.0
+        exec "vsplite " . fullfn
         return 
     endif
 
     "find in current tab
-    let bufwinnr = bufwinnr(l:fullfn) "get the window number of a specific buffer
+    let bufwinnr = bufwinnr(fullfn)   "get the window number
     if bufwinnr != -1
         exec bufwinnr . "wincmd w"
         return
@@ -38,8 +47,8 @@ function! OpenNew(filename)
         " find in each tab
         tabfirst
         let tab = 1
-        while tab <= tabpagenr("$") "get the number of a tab page
-            let bufwinnr = bufwinnr(l:fullfn)
+        while tab <= tabpagenr("$")     "get the number of a tab page
+            let bufwinnr = bufwinnr(fullfn)
             if bufwinnr != -1
                 exec "normal " . tab . "gt"
                 exec bufwinnr . "wincmd w"
@@ -49,51 +58,47 @@ function! OpenNew(filename)
             let tab = tab + 1
         endwhile
         " not exist, new tab
-        exec "tabnew " . l:fullfn
+        exec "tabnew " . fullfn
     endif
 endfunction
 
+" If has the specific color theme
+function! HasTheme(name)
+    let pat = "colors/" . a:name . ".vim"
+    return !empty(globpath($VIMRUNTIME . "/../", pat)) ||
+        \ !empty(globpath($HOME . "/.vim", pat)) 
+endfunction
+
 """""""""""""""""""" General """"""""""""""""""""""""""
-"no compatible with vi
+" Never compatible with vi, it will cause some annoying peoblems
 set nocompatible
 
-"Sets how many lines of history VIM has to remember
+" Sets how many lines of history VIM has to remember
 set history=1000
 
-"Enable filetype plugin
+" Enable filetype plugin
 filetype plugin on
 filetype indent on
 
-"set to auto read when a file is changed from the outside
+" Set to auto read when a file is changed from the outside
 set autoread
 
-"set linenumber (= set number)
-set nu
+" Set linenumber (=set nu)
+set number
 
-"switch syntax highlighting on
-syntax on
-syntax enable
-set background=dark
-colorscheme solarized  "nice theme! google solarized and you will find it
-
-" set guifont
-if g:iswindows == 1
-    set guifont=Consolas:h13:cANSI
-endif
-
-"make backspace work like most other apps
+" make backspace work like most other apps
 set backspace=2
 
-"encoding
+" encoding
 set encoding=utf8
 set fencs=utf8,gb18030,gbk,gb2312,utf-16,big5
 
-"turn backup off, since most stuff is in SVN, git anyway...
+" turn backup off, since most stuff is in SVN, git anyway...
 set nobackup
 set nowb
 set noswapfile
 
-"Text, tab and indent related
+" Text, tab and indent related
 set expandtab
 set shiftwidth=4
 set tabstop=4
@@ -107,43 +112,43 @@ set textwidth=100
 set autoindent
 set smartindent
 
-"set 5 lines to the cursors - when moving vertical
+" set 5 lines to the cursors - when moving vertical
 set so=5
 
-"turn on wild menu
+" turn on wild menu
 set wildmenu        "command-line completion
 
-"always show current position
+" always show current position
 set ruler
 
-"set the height of commandbar
+" set the height of commandbar
 set cmdheight=2
 
-"change buffer = without saving
+" change buffer = without saving
 set hidden
 
-"ignore case when searching
+" ignore case when searching
 set ignorecase
 set smartcase
 
-"hightlight search things
+" hightlight search things
 set hlsearch
 
-"make search act like search in modern browsers
+" make search act like search in modern browsers
 set incsearch
-"don't redraw while executing macros
+" don't redraw while executing macros
 set nolazyredraw
 
-"for regular expressions
+" for regular expressions
 set magic
 
-"show matching bracets when text indicator is over them
+" show matching bracets when text indicator is over them
 set showmatch
 
-"how many tenths of a second to blink
+" how many tenths of a second to blink
 set mat=2
 
-"No sounds on errors
+" No sounds on errors
 set noerrorbells
 set novisualbell
 set t_vb=
@@ -157,16 +162,91 @@ endif
 " code folder
 set foldmethod=marker
 
-"With a map leader it's possible to do extra key combinatons
-"like <leader>w saves the current file
+"""""""""""""""""""" Interface """"""""""""""""""""""""
+" Switch syntax highlighting on
+syntax on
+syntax enable
+set background=dark
+if HasTheme("solarized")
+    "nice theme! google solarized and you will find it
+    colorscheme solarized
+else
+    colorscheme default
+endif
+
+" set guifont
+if g:iswindows == 1
+    set guifont=Consolas:h13:cANSI
+endif
+
+" Statusline
+
+" Always hide the statusline
+set laststatus=2
+
+" Format the statusline
+set statusline=\ %F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l/%L:%c
+
+"""""""""""""""""""" Key Binding """"""""""""""""""""""
+" With a map leader it's possible to do extra key combinatons
+" like <leader>w saves the current file
 let mapleader = ","
 let g:mapleader = ","
 
-"Fast saving
+" Fast saving
 nmap <leader>w :w!<cr>
 
+" Bash like keys for the command line
+cnoremap <C-A>      <Home>
+cnoremap <C-E>      <End>
+cnoremap <C-K>      <C-U>
+
+" Map space to / (search) and c-space to ? (backgwards search)
+map <space> /
+map <c-space> ?
+map <silent> <leader><cr> :noh<cr>
+
+" Smart way to move between windows
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+
+" Tab configuration
+map <leader>tn :tabnew<cr>
+map <leader>te :tabedit
+map <leader>tc :tabclose<cr>
+map <leader>tm :tabmove
+map <leader>tj :tabnext<cr>
+map <leader>tk :tabprevious<cr>
+
+" Parenthesis/bracket expanding
+vnoremap $1 <esc>`>a)<esc>`<i(<esc>
+vnoremap $2 <esc>`>a]<esc>`<i[<esc>
+vnoremap $3 <esc>`>a}<esc>`<i{<esc>
+vnoremap $$ <esc>`>a"<esc>`<i"<esc>
+vnoremap $q <esc>`>a'<esc>`<i'<esc>
+vnoremap $e <esc>`>a"<esc>`<i"<esc>
+
+" Map auto complete of (, ", ', [
+inoremap $1 ()<esc>i
+inoremap $2 []<esc>i
+inoremap $3 {}<esc>i
+inoremap $4 {<esc>o}<esc>O
+inoremap $q ''<esc>i
+inoremap $e ""<esc>i
+inoremap $t <><esc>i
+
+" ,d insert date, ,t insert time
+let format_time = "%Y-%m-%d %T"     "2012-12-30 22:40:30
+let format_date = "%Y-%m-%d"        "2012-12-30
+nmap <leader>d a<C-R>=strftime(format_date)<CR><Esc>
+imap <leader>d <C-R>=strftime(format_date)<CR>
+nmap <leader>t a<C-R>=strftime(format_time)<CR><Esc>
+imap <leader>t <C-R>=strftime(format_time)<CR>
+
 """""""""""""""""""" editing vimrc """"""""""""""""""""
-" Get name of vimrc
+" Name of vimrc
 let g:vimrc = ".vimrc"
 let g:gvimrc = ".gvimrc"
 if (g:iswindows == 1)
@@ -175,24 +255,28 @@ if (g:iswindows == 1)
 endif
 
 let g:vimrc_withdir = $HOME . "/" . g:vimrc
+let g:gvimrc_withdir = $HOME . "/" . g:gvimrc
 
 " Load vimrc
 if !exists("*LoadVimrc")
     function LoadVimrc()
-        exec "source " . $HOME . "/" . g:vimrc
-        if has("gui_running")
-            exec "source " . $HOME . "/" . g:gvimrc
+        if filereadable(g:vimrc_withdir)   "if file exists
+            exec "source " . g:vimrc_withdir
+        endif
+
+        if has("gui_running") && filereadable(g:gvimrc_withdir)
+            exec "source " . g:gvimrc_withdir
         endif
     endfunction
 endif
 
-"Fast reload .vimrc
+" Fast reload .vimrc
 map <silent> <leader>ss :call LoadVimrc()<cr>
 
-"Fast edit .vimrc
+" Fast edit .vimrc
 map <silent> <leader>ee :call OpenNew(g:vimrc_withdir)<cr>
 
-"When .vimrc is edited, reload it
+" When .vimrc is edited, reload it
 autocmd! bufwritepost g:vimrc, g:gvimrc call LoadVimrc()
 
 """""""""""""""""""" For coding """""""""""""""""""""""
@@ -211,138 +295,4 @@ nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
 " Supported by DoxygenToolkit, a nice plugin to make doc comment
 let g:DoxygenToolkit_authorName="Garnel"
 
-"""""""""""""""""""" Using cscope """""""""""""""""""""
-"map <F12> :call Do_CsTag()<CR>
-"nmap <C-@>s :cs find s <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-"nmap <C-@>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-"nmap <C-@>c :cs find c <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-"nmap <C-@>t :cs find t <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-"nmap <C-@>e :cs find e <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-"nmap <C-@>f :cs find f <C-R>=expand("<cfile>")<CR><CR>:copen<CR>
-"nmap <C-@>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>:copen<CR>
-"nmap <C-@>d :cs find d <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-"function Do_CsTag()
-"    let dir = getcwd()
-"    if filereadable("tags")
-"        if(g:iswindows==1)
-"            let tagsdeleted=delete(dir."\\"."tags")
-"        else
-"            let tagsdeleted=delete("./"."tags")
-"        endif
-"        if(tagsdeleted!=0)
-"            echohl WarningMsg | echo "Fail to do tags! I cannot delete the tags" | echohl None
-"            return
-"        endif
-"    endif
-"    if has("cscope")
-"        silent! execute "cs kill -1"
-"    endif
-"    if filereadable("cscope.files")
-"        if(g:iswindows==1)
-"            let csfilesdeleted=delete(dir."\\"."cscope.files")
-"        else
-"            let csfilesdeleted=delete("./"."cscope.files")
-"        endif
-"        if(csfilesdeleted!=0)
-"            echohl WarningMsg | echo "Fail to do cscope! I cannot delete the cscope.files" | echohl None
-"            return
-"        endif
-"    endif
-"    if filereadable("cscope.out")
-"        if(g:iswindows==1)
-"            let csoutdeleted=delete(dir."\\"."cscope.out")
-"        else
-"            let csoutdeleted=delete("./"."cscope.out")
-"        endif
-"        if(csoutdeleted!=0)
-"            echohl WarningMsg | echo "Fail to do cscope! I cannot delete the cscope.out" | echohl None
-"            return
-"        endif
-"    endif
-"    if(executable('ctags'))
-"        "silent! execute "!ctags -R --c-types=+p --fields=+S *"
-"        silent! execute "!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q ."
-"    endif
-"    if(executable('cscope') && has("cscope") )
-"        if(g:iswindows!=1)
-"            silent! execute "!find . -name '*.h' -o -name '*.c' -o -name '*.cpp' -o -name
-"                        \'*.java' -o -name '*.cs' > cscope.files"
-"        else
-"            silent! execute "!dir /s/b *.c,*.cpp,*.h,*.java,*.cs >> cscope.files"
-"        endif
-"        silent! execute "!cscope -b"
-"        execute "normal :"
-"        if filereadable("cscope.out") 
-"            execute "cs add cscope.out"
-"        endif
-"    endif
-"endfunction
-
-" Bash like keys for the command line
-cnoremap <C-A>      <Home>
-cnoremap <C-E>      <End>
-cnoremap <C-K>      <C-U>
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => Moving around, tabs and buffers
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Map space to / (search) and c-space to ? (backgwards search)
-map <space> /
-map <c-space> ?
-map <silent> <leader><cr> :noh<cr>
-
-" Smart way to move btw. windows
-map <C-j> <C-W>j
-map <C-k> <C-W>k
-map <C-h> <C-W>h
-map <C-l> <C-W>l
-
-" Tab configuration
-map <leader>tn :tabnew<cr>
-map <leader>te :tabedit
-map <leader>tc :tabclose<cr>
-map <leader>tm :tabmove
-map <leader>tj :tabnext<cr>
-map <leader>tk :tabprevious<cr>
-
-""""""""""""""""""""""""""""""
-" => Statusline
-""""""""""""""""""""""""""""""
-" Always hide the statusline
-set laststatus=2
-
-" Format the statusline
-set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{CurDir()}%h\ \ \ Line:\ %l/%L:%c
-
-
-function! CurDir()
-    let curdir = substitute(getcwd(), '/Users/amir/', "~/", "g")
-    return curdir
-endfunction
-
-function! HasPaste()
-    if &paste
-        return 'PASTE MODE  '
-    else
-        return ''
-    endif
-endfunction
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => Parenthesis/bracket expanding
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-vnoremap $1 <esc>`>a)<esc>`<i(<esc>
-vnoremap $2 <esc>`>a]<esc>`<i[<esc>
-vnoremap $3 <esc>`>a}<esc>`<i{<esc>
-vnoremap $$ <esc>`>a"<esc>`<i"<esc>
-vnoremap $q <esc>`>a'<esc>`<i'<esc>
-vnoremap $e <esc>`>a"<esc>`<i"<esc>
-
-" Map auto complete of (, ", ', [
-inoremap $1 ()<esc>i
-inoremap $2 []<esc>i
-inoremap $3 {}<esc>i
-inoremap $4 {<esc>o}<esc>O
-inoremap $q ''<esc>i
-inoremap $e ""<esc>i
-inoremap $t <><esc>i
+" cscope is on the way
