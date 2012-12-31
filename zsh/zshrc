@@ -64,12 +64,16 @@ setopt HIST_IGNORE_SPACE
 
 #################### key binding ######################
 #run zsh in vi mode (vs emacs mode)
-bindkey -v  #emacs mode: bindkey -e
+#bindkey -v  #emacs mode: bindkey -e
 
-#bash-style
+#Up/Down arrow to look up history
+bindkey "[A" up-line-or-history
+bindkey "[B" down-line-or-history
+
 #Ctrl+P: prev history, Ctrl+N: next history
-bindkey "^P" vi-up-line-or-history
-bindkey "^N" vi-down-line-or-history
+#Search commands starting with current buffer in history
+bindkey "^P" up-line-or-search
+bindkey "^N" down-line-or-search
 
 #Ctrl+A: beginning of line, Ctrl+E: end of line
 bindkey "^A" vi-beginning-of-line
