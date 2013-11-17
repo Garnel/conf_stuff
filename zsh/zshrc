@@ -48,10 +48,10 @@ export HISTFILE=~/.zhistory
 setopt INC_APPEND_HISTORY
 
 #ignore duplicate commands
-setopt HIST_IGNORE_DUPS      
+setopt HIST_IGNORE_DUPS
 
 #add time stamp for command in history
-setopt EXTENDED_HISTORY      
+setopt EXTENDED_HISTORY
 
 #history for 'cd', usage: 'cd -[TAB]'
 setopt AUTO_PUSHD
@@ -125,12 +125,12 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 #case insensitivity
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
 
-#correct errors      
+#correct errors
 zstyle ':completion:*' completer _complete _match _approximate
 zstyle ':completion:*:match:*' original only
 zstyle ':completion:*:approximate:*' max-errors 1 numeric
 
-#completion for kill    
+#completion for kill
 compdef pkill=kill
 compdef pkill=killall
 zstyle ':completion:*:*:kill:*' menu yes select
@@ -204,7 +204,7 @@ export EDITOR="vim"
 
 #allow comment in command
 #usage: cmd  #I'm a comment
-setopt INTERACTIVE_COMMENTS      
+setopt INTERACTIVE_COMMENTS
 
 #those chars are considered as part of words
 WORDCHARS='*?_-[]~=&;!#$%^(){}<>'
